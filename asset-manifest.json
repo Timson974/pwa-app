@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/pwa-app/static/css/main.1d6a118a.chunk.css",
+    "main.js": "/pwa-app/static/js/main.7c4802be.chunk.js",
+    "main.js.map": "/pwa-app/static/js/main.7c4802be.chunk.js.map",
+    "runtime~main.js": "/pwa-app/static/js/runtime~main.8d2502ec.js",
+    "runtime~main.js.map": "/pwa-app/static/js/runtime~main.8d2502ec.js.map",
+    "static/js/2.accf2d20.chunk.js": "/pwa-app/static/js/2.accf2d20.chunk.js",
+    "static/js/2.accf2d20.chunk.js.map": "/pwa-app/static/js/2.accf2d20.chunk.js.map",
+    "index.html": "/pwa-app/index.html",
+    "precache-manifest.d094dc43b09cea2acef4118d739696de.js": "/pwa-app/precache-manifest.d094dc43b09cea2acef4118d739696de.js",
+    "service-worker.js": "/pwa-app/service-worker.js",
+    "static/css/main.1d6a118a.chunk.css.map": "/pwa-app/static/css/main.1d6a118a.chunk.css.map",
+    "static/media/logo.svg": "/pwa-app/static/media/logo.5d5d9eef.svg"
+  }
+}

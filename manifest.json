@@ -1,0 +1,18 @@
+{
+    "name": "Risk Analysis",
+    "short_name": "PWA-RA",
+    "description": "The Progressive Web Application by React.js",
+    "lang": "en-GB",
+    "start_url": "/index.html?hs=true",
+    "display": "standalone",
+    "orientation":"any",
+    "theme_color": "#E6E6FA",
+    "background_color": "#E6E6FA",
+    "icons": [
+        {
+            "src": "favicon.ico",
+            "sizes": "64x64 32x32 24x24 16x16",
+            "type": "image/x-icon"
+        }
+    ]
+}
