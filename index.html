@@ -149,12 +149,7 @@ select:focus,input:focus{border-color:var(--accent)}
 
 <nav>
   <div class="logo">
-    <svg viewBox="0 0 32 32" fill="none">
-      <rect width="32" height="32" rx="8" fill="#1e1f3a"/>
-      <text x="4" y="22" font-size="18" font-weight="800" font-family="Segoe UI,sans-serif" fill="#6366f1">N</text>
-      <text x="17" y="22" font-size="18" font-weight="800" font-family="Segoe UI,sans-serif" fill="#a5b4fc">V</text>
-      <circle cx="26" cy="8" r="4" fill="#ef4444" opacity=".8"/>
-    </svg>
+    <img src="icons/icon-192.png" width="32" height="32" style="border-radius:8px">
     <div class="logo-text">NVRisk Pro<span>Noise & Vibration</span></div>
   </div>
   <button class="nav-btn active" onclick="go('home')">🏠 Home</button>
@@ -173,12 +168,7 @@ select:focus,input:focus{border-color:var(--accent)}
   </div>
 
   <div class="hero">
-    <svg class="hero-logo" width="80" height="80" viewBox="0 0 80 80">
-      <rect width="80" height="80" rx="20" fill="#1e1f3a"/>
-      <text x="8" y="56" font-size="46" font-weight="800" font-family="Segoe UI,sans-serif" fill="#6366f1">N</text>
-      <text x="42" y="56" font-size="46" font-weight="800" font-family="Segoe UI,sans-serif" fill="#a5b4fc">V</text>
-      <circle cx="68" cy="16" r="10" fill="#ef4444" opacity=".8"/>
-    </svg>
+    <img src="icons/icon-512.png" class="hero-logo" width="80" height="80" style="border-radius:20px">
     <h1>NVRisk Pro</h1>
     <p>Professional Noise & Vibration Risk Analysis tool based on OHS standards. QRA · QFRA · PPE Recommendations</p>
   </div>
@@ -228,8 +218,8 @@ select:focus,input:focus{border-color:var(--accent)}
 <!-- MEASURE -->
 <section id="measure">
   <div class="section-head">
-    <h2>📊 Noise & Vibration Values</h2>
-    <p>Select the measured noise and vibration level for your location</p>
+    <h2>📊 Noise & Vibration Meter</h2>
+    <p>Measure real noise level using your device microphone</p>
   </div>
 
   <div class="card">
@@ -248,9 +238,55 @@ select:focus,input:focus{border-color:var(--accent)}
     </div>
   </div>
 
+  <!-- LIVE MICROPHONE METER -->
   <div class="card">
-    <div class="card-title"><span class="icon">🔊</span> Noise & Vibration Level</div>
-    <div class="radio-group" id="noise-radios">
+    <div class="card-title"><span class="icon">🎙️</span> Live Noise Meter</div>
+
+    <!-- Big dB display -->
+    <div style="text-align:center;padding:16px 0">
+      <div id="db-value" style="font-size:72px;font-weight:800;color:var(--ok);line-height:1;transition:color .3s">--</div>
+      <div style="font-size:18px;color:var(--muted);margin-top:4px">dB</div>
+    </div>
+
+    <!-- Level bar -->
+    <div style="background:var(--surface2);border-radius:8px;height:20px;overflow:hidden;margin-bottom:12px;position:relative">
+      <div id="db-bar" style="height:100%;width:0%;border-radius:8px;transition:width .15s,background .3s;background:var(--ok)"></div>
+    </div>
+
+    <!-- OHS threshold markers -->
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:16px">
+      <span>0 dB</span>
+      <span style="color:var(--ok)">▲ 80 EAV</span>
+      <span style="color:var(--danger)">▲ 87 ELV</span>
+      <span>140 dB</span>
+    </div>
+
+    <!-- Waveform canvas -->
+    <canvas id="waveform" width="400" height="60" style="width:100%;height:60px;border-radius:8px;background:var(--surface2);display:block;margin-bottom:16px"></canvas>
+
+    <!-- Status -->
+    <div id="mic-status" style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:16px">
+      Press Start to measure noise level
+    </div>
+
+    <!-- Controls -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn" id="mic-btn" onclick="toggleMic()">🎙️ Start Measuring</button>
+      <button class="btn btn-outline" onclick="saveMeasurement()" id="save-btn" disabled style="opacity:.4">💾 Save Result</button>
+    </div>
+  </div>
+
+  <!-- Saved measurement result -->
+  <div id="measurement-saved" style="display:none" class="card">
+    <div class="card-title"><span class="icon">✅</span> Measurement Saved</div>
+    <div id="measurement-details" style="font-size:14px;color:var(--muted)"></div>
+    <button class="btn" style="margin-top:12px" onclick="go('qra')">🧮 Continue to QRA →</button>
+  </div>
+
+  <!-- Manual input fallback -->
+  <div class="card">
+    <div class="card-title"><span class="icon">✏️</span> Or Enter Manually</div>
+    <div class="radio-group">
       <label class="radio-item" onclick="selectRadio(this,'nv','nv0')">
         <input type="radio" name="nv" id="nv0" value="0">
         <div><strong>0–39 dB</strong> = [0–0.33] m/s²<br><small style="color:var(--ok)">Safe zone</small></div>
@@ -272,9 +308,8 @@ select:focus,input:focus{border-color:var(--accent)}
         <div><strong>91–140 dB</strong> = [2.98–3.30] m/s²<br><small style="color:var(--danger)">Danger — immediate action</small></div>
       </label>
     </div>
+    <button class="btn btn-outline" style="margin-top:12px" onclick="saveMeasure()">💾 Save Manual & Continue →</button>
   </div>
-
-  <button class="btn" onclick="saveMeasure()">💾 Save & Continue to QRA →</button>
 </section>
 
 <!-- QRA -->
@@ -518,7 +553,112 @@ function selectRadio(el, name, id){
   el.classList.add('selected');
 }
 
-// MEASURE
+// ── MICROPHONE / WEB AUDIO ──────────────────────────────────────────
+let audioCtx=null, analyser=null, micStream=null, animFrame=null;
+let micRunning=false, peakDb=0, avgDb=0, avgSamples=0;
+
+async function toggleMic(){
+  if(micRunning){ stopMic(); return; }
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+    micStream=stream;
+    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const source = audioCtx.createMediaStreamSource(stream);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize=2048;
+    analyser.smoothingTimeConstant=0.6;
+    source.connect(analyser);
+    micRunning=true;
+    peakDb=0; avgDb=0; avgSamples=0;
+    document.getElementById('mic-btn').textContent='⏹ Stop Measuring';
+    document.getElementById('mic-btn').style.background='var(--danger)';
+    document.getElementById('mic-status').textContent='🔴 Measuring... speak or make noise';
+    document.getElementById('save-btn').disabled=false;
+    document.getElementById('save-btn').style.opacity='1';
+    drawLoop();
+  } catch(e){
+    document.getElementById('mic-status').textContent='❌ Microphone access denied. Use manual input below.';
+  }
+}
+
+function stopMic(){
+  micRunning=false;
+  if(micStream) micStream.getTracks().forEach(t=>t.stop());
+  if(audioCtx) audioCtx.close();
+  if(animFrame) cancelAnimationFrame(animFrame);
+  document.getElementById('mic-btn').textContent='🎙️ Start Measuring';
+  document.getElementById('mic-btn').style.background='var(--accent)';
+  document.getElementById('mic-status').textContent=`✅ Done. Peak: ${peakDb.toFixed(1)} dB | Avg: ${avgDb.toFixed(1)} dB`;
+}
+
+function drawLoop(){
+  if(!micRunning) return;
+  animFrame=requestAnimationFrame(drawLoop);
+  const buf=new Float32Array(analyser.fftSize);
+  analyser.getFloatTimeDomainData(buf);
+
+  // RMS → dB
+  let rms=0;
+  for(let i=0;i<buf.length;i++) rms+=buf[i]*buf[i];
+  rms=Math.sqrt(rms/buf.length);
+  const db = rms>0 ? Math.max(0, Math.min(140, 20*Math.log10(rms)+90)) : 0;
+
+  // Update peak/avg
+  if(db>peakDb) peakDb=db;
+  avgDb=(avgDb*avgSamples+db)/(avgSamples+1); avgSamples++;
+
+  // Update display
+  const el=document.getElementById('db-value');
+  const bar=document.getElementById('db-bar');
+  el.textContent=db.toFixed(1);
+  const pct=Math.min(100,(db/140)*100);
+  bar.style.width=pct+'%';
+
+  // Color by OHS threshold
+  let color='var(--ok)';
+  if(db>=87) color='var(--danger)';
+  else if(db>=80) color='var(--warn)';
+  el.style.color=color;
+  bar.style.background=color;
+
+  // Waveform
+  const canvas=document.getElementById('waveform');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle=color;
+  ctx.lineWidth=1.5;
+  ctx.beginPath();
+  const slice=W/buf.length;
+  for(let i=0;i<buf.length;i++){
+    const x=i*slice;
+    const y=H/2+(buf[i]*H*2);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+}
+
+function saveMeasurement(){
+  const loc=document.getElementById('m-location').value;
+  if(!loc){alert('Please select a location first');return}
+  stopMic();
+  const locName=document.getElementById('m-location').options[document.getElementById('m-location').selectedIndex].text;
+  // Map dB to vibration estimate
+  const vib=(peakDb<40?0.2:peakDb<51?0.7:peakDb<66?1.4:peakDb<91?2.4:3.1).toFixed(2);
+  const r=peakDb>=87?'🔴 HIGH RISK':peakDb>=80?'🟡 MEDIUM RISK':'🟢 LOW RISK';
+  document.getElementById('measurement-saved').style.display='block';
+  document.getElementById('measurement-details').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+      <div><div style="color:var(--muted);font-size:11px">LOCATION</div><div style="font-weight:600">${locName}</div></div>
+      <div><div style="color:var(--muted);font-size:11px">PEAK NOISE</div><div style="font-weight:600;color:var(--danger)">${peakDb.toFixed(1)} dB</div></div>
+      <div><div style="color:var(--muted);font-size:11px">AVG NOISE</div><div style="font-weight:600">${avgDb.toFixed(1)} dB</div></div>
+      <div><div style="color:var(--muted);font-size:11px">EST. VIBRATION</div><div style="font-weight:600">${vib} m/s²</div></div>
+    </div>
+    <div style="margin-top:12px;padding:10px;background:var(--surface);border-radius:8px;text-align:center;font-weight:600">${r}</div>
+  `;
+}
+
+// MEASURE (manual)
 function saveMeasure(){
   const loc=document.getElementById('m-location').value;
   const nv=document.querySelector('input[name="nv"]:checked');
