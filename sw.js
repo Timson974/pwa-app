@@ -1,4 +1,4 @@
-const CACHE = 'nvr-pro-v1';
+const CACHE = 'nvr-pro-v3';
 const ASSETS = ['./', './index.html', './manifest.json',
   './icons/icon-192.png', './icons/icon-512.png',
   './icons/icon-192-maskable.png', './icons/icon-512-maskable.png'];
