@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a0c14">
+<title>NVRisk Pro — Noise & Vibration Risk Analysis</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{
+  --bg:#0a0c14;
+  --surface:#13161f;
+  --surface2:#1a1e2e;
+  --accent:#6366f1;
+  --accent2:#a5b4fc;
+  --danger:#ef4444;
+  --warn:#f59e0b;
+  --ok:#22c55e;
+  --text:#e2e8f0;
+  --muted:#64748b;
+  --border:#1e2235;
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+
+/* NAV */
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:0;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:100}
+nav::-webkit-scrollbar{display:none}
+.logo{display:flex;align-items:center;gap:10px;padding:14px 16px 14px 0;border-right:1px solid var(--border);margin-right:8px;min-width:fit-content}
+.logo svg{width:32px;height:32px}
+.logo-text{font-size:14px;font-weight:700;color:var(--text);line-height:1.2}
+.logo-text span{color:var(--accent2);font-size:11px;font-weight:400;display:block}
+.nav-btn{background:none;border:none;color:var(--muted);padding:14px 12px;cursor:pointer;font-size:13px;font-weight:500;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s}
+.nav-btn:hover{color:var(--text)}
+.nav-btn.active{color:var(--accent2);border-bottom-color:var(--accent)}
+
+/* SECTIONS */
+section{display:none;padding:24px 16px;max-width:800px;margin:0 auto}
+section.active{display:block}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:20px}
+
+/* HERO */
+.hero{text-align:center;padding:32px 16px}
+.hero h1{font-size:24px;font-weight:700;color:var(--text);margin-bottom:8px}
+.hero p{color:var(--muted);font-size:14px;max-width:400px;margin:0 auto 24px}
+.hero-logo{margin:0 auto 24px;display:block}
+
+/* RISK MATRIX */
+.matrix-wrap{overflow-x:auto}
+.matrix{border-collapse:collapse;margin:0 auto;font-size:12px}
+.matrix td,.matrix th{width:52px;height:36px;text-align:center;border:1px solid var(--border);font-weight:600}
+.matrix th{background:var(--surface2);color:var(--muted);font-size:11px}
+.r-low{background:#166534;color:#bbf7d0}
+.r-med{background:#854d0e;color:#fef08a}
+.r-high{background:#7f1d1d;color:#fecaca}
+.matrix .label{background:var(--surface2);color:var(--muted);font-size:10px;width:60px}
+
+/* FORM */
+.form-group{margin-bottom:16px}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500}
+select,input[type=number]{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:14px;outline:none;transition:border .2s}
+select:focus,input:focus{border-color:var(--accent)}
+
+/* RADIO & CHECKBOX */
+.radio-group,.check-group{display:flex;flex-direction:column;gap:8px}
+.radio-item,.check-item{display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;transition:all .2s;font-size:13px}
+.radio-item:hover,.check-item:hover{border-color:var(--accent)}
+.radio-item input,.check-item input{accent-color:var(--accent);width:16px;height:16px}
+.radio-item.selected,.check-item.selected{border-color:var(--accent);background:#1e1f3a}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-low{background:#14532d;color:#86efac}
+.badge-med{background:#78350f;color:#fcd34d}
+.badge-high{background:#7f1d1d;color:#fca5a5}
+.badge-very-high{background:#450a0a;color:#f87171}
+
+/* BTN */
+.btn{background:var(--accent);color:#fff;border:none;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;width:100%;transition:opacity .2s;margin-top:8px}
+.btn:hover{opacity:.85}
+.btn-outline{background:transparent;border:1px solid var(--accent);color:var(--accent2)}
+
+/* RESULT BOX */
+.result-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center}
+.result-score{font-size:48px;font-weight:800;line-height:1}
+.result-label{font-size:16px;color:var(--muted);margin-top:4px}
+.result-box.r-low-box{border-color:#22c55e}
+.result-box.r-med-box{border-color:#f59e0b}
+.result-box.r-high-box{border-color:#ef4444}
+
+/* BAR CHART */
+.chart-wrap{margin-top:8px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px}
+.bar-name{width:140px;text-align:right;color:var(--muted);font-size:12px;flex-shrink:0}
+.bar-track{flex:1;background:var(--surface2);border-radius:4px;height:28px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:4px;transition:width .6s ease;display:flex;align-items:center;padding-left:8px;font-size:12px;font-weight:600;color:#fff;min-width:28px}
+.bar-val{margin-left:6px;color:var(--muted);font-size:12px;min-width:28px}
+
+/* PIE */
+.pie-section{display:flex;flex-direction:column;gap:16px;align-items:center}
+.pie-canvas{width:200px;height:200px}
+.pie-legend{display:flex;flex-direction:column;gap:6px;width:100%;max-width:300px}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+
+/* LOCATION CARDS */
+.loc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.loc-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:all .2s}
+.loc-card:hover,.loc-card.active{border-color:var(--accent);background:#1e1f3a}
+.loc-card .loc-icon{font-size:24px;margin-bottom:4px}
+.loc-card .loc-name{font-size:12px;color:var(--muted);font-weight:500}
+
+/* PPE */
+.ppe-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ppe-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;align-items:center;gap:10px;font-size:13px}
+.ppe-item .ppe-icon{font-size:24px}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:16px 0}
+
+/* SECTION HEADER */
+.section-head{margin-bottom:20px}
+.section-head h2{font-size:20px;font-weight:700;color:var(--text)}
+.section-head p{font-size:13px;color:var(--muted);margin-top:4px}
+
+/* GRID 2 */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:480px){.grid2{grid-template-columns:1fr}.loc-grid{grid-template-columns:1fr 1fr}.ppe-grid{grid-template-columns:1fr}}
+
+/* STAT TILES */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat-tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
+.stat-tile .val{font-size:24px;font-weight:800;color:var(--accent2)}
+.stat-tile .lbl{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* INSTALL BANNER */
+#install-banner{display:none;background:#1e1f3a;border:1px solid var(--accent);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;align-items:center;justify-content:space-between;gap:12px}
+#install-banner.show{display:flex}
+#install-banner p{font-size:13px;color:var(--accent2)}
+#install-btn{background:var(--accent);color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <svg viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="8" fill="#1e1f3a"/>
+      <text x="4" y="22" font-size="18" font-weight="800" font-family="Segoe UI,sans-serif" fill="#6366f1">N</text>
+      <text x="17" y="22" font-size="18" font-weight="800" font-family="Segoe UI,sans-serif" fill="#a5b4fc">V</text>
+      <circle cx="26" cy="8" r="4" fill="#ef4444" opacity=".8"/>
+    </svg>
+    <div class="logo-text">NVRisk Pro<span>Noise & Vibration</span></div>
+  </div>
+  <button class="nav-btn active" onclick="go('home')">🏠 Home</button>
+  <button class="nav-btn" onclick="go('measure')">📊 Measure</button>
+  <button class="nav-btn" onclick="go('qra')">🧮 QRA</button>
+  <button class="nav-btn" onclick="go('qfra')">📋 QFRA</button>
+  <button class="nav-btn" onclick="go('results')">📈 Results</button>
+  <button class="nav-btn" onclick="go('ppe')">🦺 PPE</button>
+</nav>
+
+<!-- HOME -->
+<section id="home" class="active">
+  <div id="install-banner">
+    <p>📱 Install NVRisk Pro on your device for offline use</p>
+    <button id="install-btn">Install</button>
+  </div>
+
+  <div class="hero">
+    <svg class="hero-logo" width="80" height="80" viewBox="0 0 80 80">
+      <rect width="80" height="80" rx="20" fill="#1e1f3a"/>
+      <text x="8" y="56" font-size="46" font-weight="800" font-family="Segoe UI,sans-serif" fill="#6366f1">N</text>
+      <text x="42" y="56" font-size="46" font-weight="800" font-family="Segoe UI,sans-serif" fill="#a5b4fc">V</text>
+      <circle cx="68" cy="16" r="10" fill="#ef4444" opacity=".8"/>
+    </svg>
+    <h1>NVRisk Pro</h1>
+    <p>Professional Noise & Vibration Risk Analysis tool based on OHS standards. QRA · QFRA · PPE Recommendations</p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-tile"><div class="val">7</div><div class="lbl">Locations</div></div>
+    <div class="stat-tile"><div class="val">5</div><div class="lbl">Risk Levels</div></div>
+    <div class="stat-tile"><div class="val">OHS</div><div class="lbl">Standard</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">⚠️</span> Risk Matrix (5×5)</div>
+    <div class="matrix-wrap">
+      <table class="matrix">
+        <tr>
+          <th class="label">Prob ↓ / Impact →</th>
+          <th>1<br>Very Low</th><th>2<br>Low</th><th>3<br>Medium</th><th>4<br>High</th><th>5<br>Very High</th>
+        </tr>
+        <tr><td class="label">5 — Very High</td><td class="r-med">5</td><td class="r-high">10</td><td class="r-high">15</td><td class="r-high">20</td><td class="r-high">25</td></tr>
+        <tr><td class="label">4 — High</td><td class="r-low">4</td><td class="r-med">8</td><td class="r-high">12</td><td class="r-high">16</td><td class="r-high">20</td></tr>
+        <tr><td class="label">3 — Medium</td><td class="r-low">3</td><td class="r-low">6</td><td class="r-med">9</td><td class="r-high">12</td><td class="r-high">15</td></tr>
+        <tr><td class="label">2 — Low</td><td class="r-low">2</td><td class="r-low">4</td><td class="r-low">6</td><td class="r-med">8</td><td class="r-high">10</td></tr>
+        <tr><td class="label">1 — Very Low</td><td class="r-low">1</td><td class="r-low">2</td><td class="r-low">3</td><td class="r-low">4</td><td class="r-med">5</td></tr>
+      </table>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+      <span class="badge badge-low">● Low (1–4)</span>
+      <span class="badge badge-med">● Medium (5–9)</span>
+      <span class="badge badge-high">● High (10–25)</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📍</span> UWL Campus Locations</div>
+    <div class="loc-grid">
+      <div class="loc-card"><div class="loc-icon">📚</div><div class="loc-name">Library, Level 1</div></div>
+      <div class="loc-card"><div class="loc-icon">📖</div><div class="loc-name">Library, Level 2</div></div>
+      <div class="loc-card"><div class="loc-icon">🔇</div><div class="loc-name">Library, Level 3</div></div>
+      <div class="loc-card"><div class="loc-icon">🖨️</div><div class="loc-name">Printing Area / Street</div></div>
+      <div class="loc-card"><div class="loc-icon">🏫</div><div class="loc-name">Classroom, Floor 3</div></div>
+      <div class="loc-card"><div class="loc-icon">🍽️</div><div class="loc-name">Canteen</div></div>
+      <div class="loc-card" style="grid-column:span 2"><div class="loc-icon">🏗️</div><div class="loc-name">Back Yard</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- MEASURE -->
+<section id="measure">
+  <div class="section-head">
+    <h2>📊 Noise & Vibration Values</h2>
+    <p>Select the measured noise and vibration level for your location</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📍</span> Location</div>
+    <div class="form-group">
+      <select id="m-location" onchange="updateMeasure()">
+        <option value="">--- Select location ---</option>
+        <option value="lib1">Library, Level 1</option>
+        <option value="lib2">Library, Level 2</option>
+        <option value="lib3">Library, Level 3</option>
+        <option value="print">Printing Area / Street</option>
+        <option value="class">Classroom, Floor 3</option>
+        <option value="canteen">Canteen</option>
+        <option value="yard">Back Yard</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🔊</span> Noise & Vibration Level</div>
+    <div class="radio-group" id="noise-radios">
+      <label class="radio-item" onclick="selectRadio(this,'nv','nv0')">
+        <input type="radio" name="nv" id="nv0" value="0">
+        <div><strong>0–39 dB</strong> = [0–0.33] m/s²<br><small style="color:var(--ok)">Safe zone</small></div>
+      </label>
+      <label class="radio-item" onclick="selectRadio(this,'nv','nv1')">
+        <input type="radio" name="nv" id="nv1" value="1">
+        <div><strong>40–50 dB</strong> = [0.34–0.99] m/s²<br><small style="color:var(--ok)">Low risk</small></div>
+      </label>
+      <label class="radio-item" onclick="selectRadio(this,'nv','nv2')">
+        <input type="radio" name="nv" id="nv2" value="2">
+        <div><strong>51–65 dB</strong> = [1.0–1.98] m/s²<br><small style="color:var(--warn)">Moderate — monitor</small></div>
+      </label>
+      <label class="radio-item" onclick="selectRadio(this,'nv','nv3')">
+        <input type="radio" name="nv" id="nv3" value="3">
+        <div><strong>66–90 dB</strong> = [1.99–2.97] m/s²<br><small style="color:var(--warn)">High — action required</small></div>
+      </label>
+      <label class="radio-item" onclick="selectRadio(this,'nv','nv4')">
+        <input type="radio" name="nv" id="nv4" value="4">
+        <div><strong>91–140 dB</strong> = [2.98–3.30] m/s²<br><small style="color:var(--danger)">Danger — immediate action</small></div>
+      </label>
+    </div>
+  </div>
+
+  <button class="btn" onclick="saveMeasure()">💾 Save & Continue to QRA →</button>
+</section>
+
+<!-- QRA -->
+<section id="qra">
+  <div class="section-head">
+    <h2>🧮 Quantitative Risk Analysis</h2>
+    <p>QRA = Probability × Impact</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🎲</span> Probability</div>
+    <div class="form-group">
+      <select id="qra-prob">
+        <option value="">--- Select Probability ---</option>
+        <option value="1">1 — Very Low (rare)</option>
+        <option value="2">2 — Low (unlikely)</option>
+        <option value="3">3 — Medium (possible)</option>
+        <option value="4">4 — High (likely)</option>
+        <option value="5">5 — Very High (almost certain)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🔊</span> Noise Impact</div>
+    <div class="form-group">
+      <select id="qra-noise-impact">
+        <option value="">--- Select Noise Impact ---</option>
+        <option value="1">1 — Negligible (&lt;40 dB)</option>
+        <option value="2">2 — Minor (40–50 dB)</option>
+        <option value="3">3 — Moderate (51–65 dB)</option>
+        <option value="4">4 — Major (66–90 dB)</option>
+        <option value="5">5 — Catastrophic (&gt;90 dB)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📳</span> HAV (Hand-Arm Vibration) Impact</div>
+    <div class="form-group">
+      <select id="qra-hav-impact">
+        <option value="">--- Select HAV Impact ---</option>
+        <option value="1">1 — Negligible (&lt;0.33 m/s²)</option>
+        <option value="2">2 — Minor (0.34–0.99 m/s²)</option>
+        <option value="3">3 — Moderate (1.0–1.98 m/s²)</option>
+        <option value="4">4 — Major (1.99–2.97 m/s²)</option>
+        <option value="5">5 — Catastrophic (&gt;2.97 m/s²)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📊</span> Risk Score Ranges</div>
+    <div class="check-group">
+      <label class="check-item"><input type="checkbox" id="rs1-2" value="1-2"><span>1–2 &nbsp;<span class="badge badge-low">Low</span></span></label>
+      <label class="check-item"><input type="checkbox" id="rs3-4" value="3-4"><span>3–4 &nbsp;<span class="badge badge-low">Low-Medium</span></span></label>
+      <label class="check-item"><input type="checkbox" id="rs5-9" value="5-9"><span>5–9 &nbsp;<span class="badge badge-med">Medium</span></span></label>
+      <label class="check-item"><input type="checkbox" id="rs10-15" value="10-15"><span>10–15 &nbsp;<span class="badge badge-high">High</span></span></label>
+      <label class="check-item"><input type="checkbox" id="rs16-25" value="16-25"><span>16–25 &nbsp;<span class="badge badge-very-high">Very High</span></span></label>
+    </div>
+  </div>
+
+  <button class="btn" onclick="calcQRA()">🧮 Calculate Risk Score →</button>
+
+  <div id="qra-result" style="display:none;margin-top:16px"></div>
+</section>
+
+<!-- QFRA -->
+<section id="qfra">
+  <div class="section-head">
+    <h2>📋 Qualitative Risk Analysis</h2>
+    <p>Assess risk factors by location and exposure levels</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📍</span> Location</div>
+    <div class="form-group">
+      <select id="qfra-loc">
+        <option value="">--- Select location ---</option>
+        <option value="lib1">Library, Level 1</option>
+        <option value="lib2">Library, Level 2</option>
+        <option value="lib3">Library, Level 3</option>
+        <option value="print">Printing Area / Street</option>
+        <option value="class">Classroom, Floor 3</option>
+        <option value="canteen">Canteen</option>
+        <option value="yard">Back Yard</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title" style="font-size:14px"><span class="icon">🔊</span> Noise Level (dB)</div>
+      <input type="number" id="qfra-noise" placeholder="e.g. 65" min="0" max="140">
+    </div>
+    <div class="card">
+      <div class="card-title" style="font-size:14px"><span class="icon">📳</span> Vibration (m/s²)</div>
+      <input type="number" id="qfra-vib" placeholder="e.g. 1.5" step="0.01" min="0" max="4">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">⏱️</span> Exposure Duration</div>
+    <div class="radio-group">
+      <label class="radio-item" onclick="selectRadio(this,'exp','exp0')"><input type="radio" name="exp" id="exp0" value="short"><span>Short (&lt;1 hour/day)</span></label>
+      <label class="radio-item" onclick="selectRadio(this,'exp','exp1')"><input type="radio" name="exp" id="exp1" value="medium"><span>Medium (1–4 hours/day)</span></label>
+      <label class="radio-item" onclick="selectRadio(this,'exp','exp2')"><input type="radio" name="exp" id="exp2" value="long"><span>Long (&gt;4 hours/day)</span></label>
+    </div>
+  </div>
+
+  <button class="btn" onclick="calcQFRA()">📋 Assess Qualitative Risk →</button>
+
+  <div id="qfra-result" style="display:none;margin-top:16px"></div>
+</section>
+
+<!-- RESULTS -->
+<section id="results">
+  <div class="section-head">
+    <h2>📈 Results & Analysis</h2>
+    <p>Risk analysis across all UWL locations</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📊</span> Bar Chart — Risk Values by Location</div>
+    <div class="chart-wrap" id="bar-chart"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🥧</span> Distribution by Location</div>
+    <div class="pie-section">
+      <canvas class="pie-canvas" id="pie-chart" width="200" height="200"></canvas>
+      <div class="pie-legend" id="pie-legend"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📋</span> Summary Table</div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:13px" id="summary-table">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:8px;color:var(--muted);font-weight:500">Location</th>
+            <th style="padding:8px;color:var(--muted);font-weight:500">Noise dB</th>
+            <th style="padding:8px;color:var(--muted);font-weight:500">Vib m/s²</th>
+            <th style="padding:8px;color:var(--muted);font-weight:500">Risk</th>
+          </tr>
+        </thead>
+        <tbody id="summary-body"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER (shown in every section) -->
+<div style="text-align:center;padding:24px 16px 32px;color:var(--muted);font-size:12px">
+  © 2019–2026 Utepov Timur · NVRisk Pro · UWL Project
+</div>
+
+<!-- PPE -->
+<section id="ppe">
+  <div class="section-head">
+    <h2>🦺 PPE Recommendations</h2>
+    <p>Personal Protective Equipment based on OHS standards</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🔊</span> Noise Protection</div>
+    <div class="ppe-grid">
+      <div class="ppe-item"><span class="ppe-icon">🎧</span><div><strong>Ear Muffs</strong><br><small style="color:var(--muted)">&gt;85 dB — mandatory</small></div></div>
+      <div class="ppe-item"><span class="ppe-icon">🔌</span><div><strong>Ear Plugs</strong><br><small style="color:var(--muted)">&gt;80 dB — recommended</small></div></div>
+      <div class="ppe-item"><span class="ppe-icon">📡</span><div><strong>Noise Barriers</strong><br><small style="color:var(--muted)">Engineering control</small></div></div>
+      <div class="ppe-item"><span class="ppe-icon">📋</span><div><strong>Hearing Test</strong><br><small style="color:var(--muted)">Annual — if &gt;85 dB</small></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📳</span> Vibration Protection (HAV)</div>
+    <div class="ppe-grid">
+      <div class="ppe-item"><span class="ppe-icon">🧤</span><div><strong>Anti-Vib Gloves</strong><br><small style="color:var(--muted)">&gt;2.5 m/s² — required</small></div></div>
+      <div class="ppe-item"><span class="ppe-icon">⏱️</span><div><strong>Exposure Limit</strong><br><small style="color:var(--muted)">Max 2.5 m/s² / 8h EAV</small></div></div>
+      <div class="ppe-item"><span class="ppe-icon">🔧</span><div><strong>Tool Maintenance</strong><br><small style="color:var(--muted)">Reduce vibration at source</small></div></div>
+      <div class="ppe-item"><span class="ppe-icon">🩺</span><div><strong>Health Surveillance</strong><br><small style="color:var(--muted)">Regular checks — HAVS</small></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📏</span> OHS Threshold Values</div>
+    <div style="font-size:13px;line-height:2;color:var(--muted)">
+      <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0"><span>Noise EAV (Exposure Action Value)</span><span style="color:var(--warn);font-weight:600">80 dB(A)</span></div>
+      <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0"><span>Noise ELV (Exposure Limit Value)</span><span style="color:var(--danger);font-weight:600">87 dB(A)</span></div>
+      <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0"><span>HAV EAV</span><span style="color:var(--warn);font-weight:600">2.5 m/s²</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0"><span>HAV ELV</span><span style="color:var(--danger);font-weight:600">5.0 m/s²</span></div>
+    </div>
+  </div>
+</section>
+
+<script>
+// DATA — UWL campus measured values (sample data)
+const LOCATIONS = [
+  {id:'lib1',  name:'Library, Level 1',      icon:'📚', db:48,  vib:0.8,  prob:2, ni:2, hav:2},
+  {id:'lib2',  name:'Library, Level 2',      icon:'📖', db:52,  vib:1.1,  prob:3, ni:3, hav:3},
+  {id:'lib3',  name:'Library, Level 3',      icon:'🔇', db:38,  vib:0.2,  prob:1, ni:1, hav:1},
+  {id:'print', name:'Printing Area / Street',icon:'🖨️', db:78,  vib:2.4,  prob:4, ni:4, hav:4},
+  {id:'class', name:'Classroom, Floor 3',    icon:'🏫', db:62,  vib:1.6,  prob:3, ni:3, hav:3},
+  {id:'canteen',name:'Canteen',              icon:'🍽️', db:71,  vib:1.9,  prob:4, ni:4, hav:3},
+  {id:'yard',  name:'Back Yard',             icon:'🏗️', db:84,  vib:2.9,  prob:5, ni:4, hav:5},
+];
+
+const PIE_COLORS = ['#6366f1','#a5b4fc','#22c55e','#ef4444','#f59e0b','#ec4899','#14b8a6'];
+
+function getRiskScore(prob, impact){return prob*impact}
+function getRiskClass(score){
+  if(score<=4) return 'low';
+  if(score<=9) return 'med';
+  return 'high';
+}
+function getRiskLabel(score){
+  if(score<=4) return {label:'Low Risk', cls:'badge-low', boxCls:'r-low-box'};
+  if(score<=9) return {label:'Medium Risk', cls:'badge-med', boxCls:'r-med-box'};
+  if(score<=15) return {label:'High Risk', cls:'badge-high', boxCls:'r-high-box'};
+  return {label:'Very High Risk', cls:'badge-very-high', boxCls:'r-high-box'};
+}
+
+// NAV
+function go(id){
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    if(b.textContent.toLowerCase().includes(id.substring(0,3))) b.classList.add('active');
+  });
+  if(id==='results') renderResults();
+}
+
+// RADIO
+function selectRadio(el, name, id){
+  document.querySelectorAll(`input[name="${name}"]`).forEach(r=>{
+    r.closest('.radio-item').classList.remove('selected');
+  });
+  document.getElementById(id).checked=true;
+  el.classList.add('selected');
+}
+
+// MEASURE
+function saveMeasure(){
+  const loc=document.getElementById('m-location').value;
+  const nv=document.querySelector('input[name="nv"]:checked');
+  if(!loc||!nv){alert('Please select location and noise/vibration level');return}
+  go('qra');
+}
+function updateMeasure(){}
+
+// QRA CALC
+function calcQRA(){
+  const prob=parseInt(document.getElementById('qra-prob').value)||0;
+  const ni=parseInt(document.getElementById('qra-noise-impact').value)||0;
+  const hav=parseInt(document.getElementById('qra-hav-impact').value)||0;
+  if(!prob||!ni||!hav){alert('Please fill all fields');return}
+  const noiseScore=prob*ni;
+  const havScore=prob*hav;
+  const maxScore=Math.max(noiseScore,havScore);
+  const r=getRiskLabel(maxScore);
+  const el=document.getElementById('qra-result');
+  el.style.display='block';
+  el.innerHTML=`
+    <div class="result-box ${r.boxCls}">
+      <div class="result-score" style="color:${maxScore>9?'var(--danger)':maxScore>4?'var(--warn)':'var(--ok)'}">${maxScore}</div>
+      <div class="result-label"><span class="badge ${r.cls}">${r.label}</span></div>
+      <div style="margin-top:12px;font-size:13px;color:var(--muted)">
+        Noise Risk: <strong>${noiseScore}</strong> &nbsp;|&nbsp; HAV Risk: <strong>${havScore}</strong>
+      </div>
+    </div>
+    <button class="btn btn-outline" style="margin-top:12px" onclick="go('ppe')">🦺 View PPE Recommendations →</button>
+  `;
+}
+
+// QFRA CALC
+function calcQFRA(){
+  const loc=document.getElementById('qfra-loc').value;
+  const noise=parseFloat(document.getElementById('qfra-noise').value)||0;
+  const vib=parseFloat(document.getElementById('qfra-vib').value)||0;
+  const exp=document.querySelector('input[name="exp"]:checked');
+  if(!loc||!noise||!vib||!exp){alert('Please fill all fields');return}
+
+  let riskLevel='Low';
+  let riskColor='var(--ok)';
+  let actions=[];
+
+  if(noise>87||vib>5){riskLevel='Very High';riskColor='var(--danger)';actions=['Stop work immediately','Mandatory PPE','Engineering controls required','Immediate health surveillance']}
+  else if(noise>80||vib>2.5){riskLevel='High';riskColor='var(--danger)';actions=['PPE mandatory','Reduce exposure time','Engineering controls','Annual hearing/health check']}
+  else if(noise>70||vib>1.5){riskLevel='Medium';riskColor='var(--warn)';actions=['Monitor exposure','Consider PPE','Record measurements','Reassess in 3 months']}
+  else {riskLevel='Low';riskColor='var(--ok)';actions=['Continue normal monitoring','No immediate action required','Annual review']}
+
+  if(exp.value==='long' && riskLevel==='Low') riskLevel='Medium';
+
+  const el=document.getElementById('qfra-result');
+  el.style.display='block';
+  el.innerHTML=`
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <div style="font-size:36px;font-weight:800;color:${riskColor}">${riskLevel}</div>
+        <div style="color:var(--muted);font-size:13px">Risk level for selected location<br>Noise: ${noise} dB | Vib: ${vib} m/s²</div>
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px">RECOMMENDED ACTIONS:</div>
+      ${actions.map(a=>`<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;display:flex;gap:8px"><span>→</span><span>${a}</span></div>`).join('')}
+    </div>
+  `;
+}
+
+// RESULTS
+function renderResults(){
+  renderBarChart();
+  renderPieChart();
+  renderSummaryTable();
+}
+
+function renderBarChart(){
+  const maxScore=25;
+  const html=LOCATIONS.map(l=>{
+    const score=getRiskScore(l.prob,l.ni);
+    const pct=Math.round((score/maxScore)*100);
+    const color=score<=4?'#22c55e':score<=9?'#f59e0b':'#ef4444';
+    return `
+      <div class="bar-row">
+        <div class="bar-name">${l.icon} ${l.name.split(',')[0]}</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${pct}%;background:${color}">${score}</div>
+        </div>
+        <div class="bar-val">${score}</div>
+      </div>`;
+  }).join('');
+  document.getElementById('bar-chart').innerHTML=html;
+}
+
+function renderPieChart(){
+  const canvas=document.getElementById('pie-chart');
+  const ctx=canvas.getContext('2d');
+  const cx=100,cy=100,r=90;
+  const scores=LOCATIONS.map(l=>getRiskScore(l.prob,l.ni));
+  const total=scores.reduce((a,b)=>a+b,0);
+  let angle=-Math.PI/2;
+  ctx.clearRect(0,0,200,200);
+  scores.forEach((s,i)=>{
+    const slice=(s/total)*(2*Math.PI);
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,angle,angle+slice);
+    ctx.closePath();
+    ctx.fillStyle=PIE_COLORS[i];
+    ctx.fill();
+    ctx.strokeStyle='#0a0c14';
+    ctx.lineWidth=2;
+    ctx.stroke();
+    angle+=slice;
+  });
+  const legend=LOCATIONS.map((l,i)=>`
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${PIE_COLORS[i]}"></div>
+      <span>${l.icon} ${l.name}</span>
+    </div>`).join('');
+  document.getElementById('pie-legend').innerHTML=legend;
+}
+
+function renderSummaryTable(){
+  const rows=LOCATIONS.map(l=>{
+    const score=getRiskScore(l.prob,l.ni);
+    const r=getRiskLabel(score);
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:8px;font-size:13px">${l.icon} ${l.name}</td>
+      <td style="padding:8px;text-align:center;font-size:13px">${l.db}</td>
+      <td style="padding:8px;text-align:center;font-size:13px">${l.vib}</td>
+      <td style="padding:8px;text-align:center"><span class="badge ${r.cls}">${r.label}</span></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('summary-body').innerHTML=rows;
+}
+
+// PWA INSTALL
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  document.getElementById('install-banner').classList.add('show');
+});
+document.getElementById('install-btn').addEventListener('click',async()=>{
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    const r=await deferredPrompt.userChoice;
+    deferredPrompt=null;
+    document.getElementById('install-banner').classList.remove('show');
+  }
+});
+
+// SERVICE WORKER
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
